@@ -1,0 +1,15 @@
+{
+  "name": "Furkan Zentrum Wochen-Check-in",
+  "short_name": "Furkan",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "vulkanlogo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
