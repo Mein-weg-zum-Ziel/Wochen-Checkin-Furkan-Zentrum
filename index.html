@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Furkan Zentrum – Wochen-Check-in</title>
+<style>
+
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+    .spin { animation: fz-spin 0.9s linear infinite; }
+    @keyframes fz-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .fz-root { --bg:#0A1120; --bg-elevated:#111B2E; --surface:#16223A; --surface-2:#1D2C48;
+      --border:#26385A; --text:#EAF2FB; --text-muted:#91A6C4; --accent:#5FD0F0; --accent-strong:#34AEDA;
+      --accent-soft:rgba(95,208,240,0.14); --gold:#D9B36C; --success:#38D9A9; --warning:#F5A524; --danger:#F2586B;
+      font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh;
+      display:flex; flex-direction:column; position:relative; }
+    .fz-root[data-theme='light'] { --bg:#F3F8FC; --bg-elevated:#FFFFFF; --surface:#FFFFFF; --surface-2:#EAF3FA;
+      --border:#D7E4EF; --text:#142235; --text-muted:#54708A; --accent:#1B93C4; --accent-strong:#0F729E;
+      --accent-soft:rgba(27,147,196,0.10); --gold:#B78A3D; --success:#0E9C82; --warning:#C6790F; --danger:#D93B54; }
+    .fz-root * { box-sizing:border-box; }
+    .fz-scroll { flex:1; overflow-y:auto; padding:20px 16px 96px; max-width:480px; margin:0 auto; width:100%; }
+    .fz-header { position:sticky; top:0; z-index:5; background:var(--bg); border-bottom:1px solid var(--border);
+      padding:14px 16px; display:flex; align-items:center; gap:12px; max-width:480px; margin:0 auto; width:100%; }
+    .fz-logo-badge { width:40px; height:40px; border-radius:12px; background:linear-gradient(155deg,var(--surface-2),var(--bg-elevated));
+      border:1px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; }
+    .fz-logo-badge img { width:26px; height:26px; object-fit:contain; }
+    .fz-header-title { font-family:'Outfit',sans-serif; font-weight:700; font-size:15px; line-height:1.2; }
+    .fz-header-sub { font-size:11.5px; color:var(--text-muted); }
+    .theme-toggle { margin-left:auto; width:36px; height:36px; border-radius:10px; border:1px solid var(--border);
+      background:var(--surface); color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; }
+    .hero { position:relative; overflow:hidden; border-radius:20px; padding:22px 18px; background:linear-gradient(160deg,var(--surface-2),var(--bg-elevated));
+      border:1px solid var(--border); margin-bottom:16px; }
+    .star-field { position:absolute; inset:0; width:100%; height:100%; color:var(--accent); opacity:0.05; pointer-events:none; }
+    .hero-content { position:relative; z-index:1; }
+    .hero-eyebrow { font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); font-weight:700; }
+    .hero-title { font-family:'Outfit',sans-serif; font-size:22px; font-weight:700; margin:6px 0 4px; }
+    .hero-sub { font-size:13.5px; color:var(--text-muted); line-height:1.5; }
+    .stat-row { display:flex; gap:10px; margin-top:16px; }
+    .stat-pill { flex:1; background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:10px 12px; }
+    .stat-pill-num { font-family:'Outfit',sans-serif; font-size:18px; font-weight:700; display:flex; align-items:center; gap:5px; }
+    .stat-pill-label { font-size:10.5px; color:var(--text-muted); margin-top:2px; }
+    .section-title { font-family:'Outfit',sans-serif; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+      color:var(--text-muted); margin:22px 0 10px; }
+    .big-btn { width:100%; display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border);
+      border-radius:14px; padding:14px; margin-bottom:10px; cursor:pointer; text-align:left; color:var(--text); transition:border-color .15s, transform .1s; }
+    .big-btn:active { transform:scale(0.98); }
+    .big-btn:hover { border-color:var(--accent); }
+    .big-btn-icon { width:38px; height:38px; border-radius:10px; background:var(--accent-soft); color:var(--accent-strong);
+      display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .big-btn-text { display:flex; flex-direction:column; flex:1; }
+    .big-btn-label { font-weight:600; font-size:14.5px; }
+    .big-btn-sub { font-size:12px; color:var(--text-muted); margin-top:1px; }
+    .big-btn-chevron { color:var(--text-muted); }
+    .min-banner { border-radius:14px; padding:12px 14px; border:1px solid var(--border); margin-bottom:16px; }
+    .min-banner.ok { background:rgba(56,209,169,0.08); border-color:var(--success); }
+    .min-banner.warn { background:rgba(242,88,107,0.08); border-color:var(--danger); }
+    .min-banner-head { display:flex; align-items:center; gap:6px; font-weight:700; font-size:13px; margin-bottom:8px; }
+    .min-banner.ok .min-banner-head { color:var(--success); }
+    .min-banner.warn .min-banner-head { color:var(--danger); }
+    .min-banner-items { display:flex; flex-wrap:wrap; gap:6px; }
+    .min-chip { font-size:11px; padding:4px 8px; border-radius:8px; border:1px solid var(--border); }
+    .min-chip.ok { color:var(--success); border-color:var(--success); }
+    .min-chip.open { color:var(--danger); border-color:var(--danger); }
+    .group-block { margin-bottom:18px; }
+    .group-head { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .group-head-icon { width:26px; height:26px; border-radius:8px; background:var(--accent-soft); color:var(--accent-strong);
+      display:flex; align-items:center; justify-content:center; }
+    .group-head-title { font-weight:700; font-size:13.5px; }
+    .group-head-hint { font-size:11px; color:var(--text-muted); }
+    .check-row { display:flex; align-items:center; gap:10px; padding:11px 12px; border:1px solid var(--border);
+      border-radius:12px; margin-bottom:7px; cursor:pointer; background:var(--surface); }
+    .check-row.checked { border-color:var(--accent); background:var(--accent-soft); }
+    .checkbox { width:20px; height:20px; border-radius:6px; border:2px solid var(--border); flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; color:white; }
+    .check-row.checked .checkbox { background:var(--accent); border-color:var(--accent); }
+    .check-label { font-size:13.5px; }
+    .prayer-grid { display:flex; flex-wrap:wrap; gap:8px; }
+    .prayer-chip { padding:9px 14px; border-radius:20px; border:1px solid var(--border); font-size:13px; cursor:pointer; background:var(--surface); }
+    .prayer-chip.checked { background:var(--accent); border-color:var(--accent); color:#04202b; font-weight:700; }
+    .recurring-item { border:1px solid var(--border); border-radius:12px; padding:11px 12px; margin-bottom:8px; background:var(--surface); }
+    .recurring-item-label { font-size:13.5px; font-weight:600; margin-bottom:8px; }
+    .recurring-chip-row { display:flex; flex-wrap:wrap; gap:7px; }
+    .recurring-chip { padding:7px 11px; border-radius:16px; border:1px solid var(--border); font-size:11.5px; cursor:pointer; background:var(--bg); color:var(--text-muted); }
+    .recurring-chip.active { border-color:var(--accent-strong); color:var(--text); font-weight:600; }
+    .recurring-chip.active.counts { background:var(--success); border-color:var(--success); color:#04202b; }
+    .goal-input-row { display:flex; gap:8px; margin-bottom:10px; }
+    .goal-input { flex:1; background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text); font-size:13.5px; }
+    .goal-add-btn { width:40px; border-radius:10px; background:var(--accent); border:none; color:#04202b; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+    .goal-row { display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--border); border-radius:12px; margin-bottom:7px; }
+    .goal-remove { margin-left:auto; color:var(--text-muted); background:none; border:none; cursor:pointer; }
+    .primary-btn { width:100%; padding:15px; border-radius:14px; background:var(--accent); border:none; color:#04202b;
+      font-weight:700; font-size:14.5px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+    .primary-btn:disabled { opacity:0.6; }
+    .secondary-btn { width:100%; padding:13px; border-radius:14px; background:transparent; border:1px solid var(--border); color:var(--text);
+      font-weight:600; font-size:13.5px; cursor:pointer; margin-top:8px; }
+    .textarea { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px;
+      color:var(--text); font-size:13px; margin-top:6px; resize:vertical; min-height:56px; font-family:'Inter',sans-serif; }
+    .field-label { font-size:12.5px; font-weight:600; margin-top:12px; display:block; }
+    .toggle-row { display:flex; align-items:center; justify-content:space-between; margin-top:12px; }
+    .switch { width:42px; height:24px; border-radius:12px; background:var(--border); position:relative; cursor:pointer; flex-shrink:0; }
+    .switch.on { background:var(--accent); }
+    .switch-knob { width:18px; height:18px; border-radius:50%; background:white; position:absolute; top:3px; left:3px; transition:left .15s; }
+    .switch.on .switch-knob { left:21px; }
+    .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:var(--bg-elevated); border-top:1px solid var(--border);
+      display:flex; padding:8px 12px calc(8px + env(safe-area-inset-bottom)); z-index:10; max-width:480px; margin:0 auto; }
+    .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; background:none; border:none;
+      color:var(--text-muted); font-size:10.5px; padding:6px 0; cursor:pointer; border-radius:10px; }
+    .nav-item.active { color:var(--accent); }
+    .login-wrap { min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:28px; max-width:420px; margin:0 auto; }
+    .login-logo { width:88px; height:88px; border-radius:22px; background:linear-gradient(155deg,var(--surface-2),var(--bg-elevated));
+      border:1px solid var(--border); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; }
+    .login-logo img { width:58px; height:58px; object-fit:contain; }
+    .login-title { font-family:'Outfit',sans-serif; font-size:24px; font-weight:800; text-align:center; }
+    .login-sub { font-size:13px; color:var(--text-muted); text-align:center; margin-top:6px; line-height:1.5; }
+    .input-field { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:13px 14px;
+      color:var(--text); font-size:14px; margin-top:14px; }
+    .input-note { font-size:11px; color:var(--text-muted); margin-top:5px; }
+    .error-text { color:var(--danger); font-size:12.5px; margin-top:8px; }
+    .result-card { text-align:center; padding:26px 18px; }
+    .result-status { font-family:'Outfit',sans-serif; font-weight:700; font-size:18px; margin-top:14px; }
+    .result-text { font-size:13.5px; color:var(--text-muted); line-height:1.6; margin-top:10px; text-align:left; }
+    .result-block { text-align:left; margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+    .result-block-label { font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--accent); font-weight:700; margin-bottom:4px; }
+    .summary-row { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--border); font-size:13px; }
+    .summary-row:last-child { border-bottom:none; }
+    .badge-ok { color:var(--success); font-weight:600; }
+    .badge-open { color:var(--danger); font-weight:600; }
+    .empty-state { text-align:center; padding:30px 16px; color:var(--text-muted); }
+    .reaction-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
+    .reaction-btn { padding:11px 8px; border-radius:12px; border:1px solid var(--border); background:var(--surface);
+      font-size:12px; text-align:center; cursor:pointer; color:var(--text); }
+    .reaction-btn.sent { border-color:var(--accent); background:var(--accent-soft); }
+    .history-item { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--border); border-radius:14px; margin-bottom:8px; }
+    .history-pct { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; border:2px solid; }
+    .history-week { font-weight:600; font-size:13.5px; }
+    .history-status { font-size:11.5px; color:var(--text-muted); }
+    .badge-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    .badge-item { display:flex; align-items:center; gap:6px; background:var(--accent-soft); color:var(--accent-strong);
+      padding:6px 10px; border-radius:20px; font-size:11.5px; font-weight:600; }
+    .stepper-top { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+    .back-btn { width:34px; height:34px; border-radius:10px; background:var(--surface); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text); }
+  </style>
+</head>
+<body>
+<div id="app" class="fz-root" data-theme="dark"></div>
+<script>
+const LOGO_SRC = "data:image/png;base64,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";
+
+/* ---------- Storage (localStorage wrapper, mimics async artifact storage API) ---------- */
+const storage = {
+  get(key, shared) {
+    return new Promise((resolve) => {
+      const scope = shared ? "shared__" : "personal__";
+      const val = localStorage.getItem(scope + key);
+      resolve(val === null ? null : { key: key, value: val, shared: !!shared });
+    });
+  },
+  set(key, value, shared) {
+    return new Promise((resolve) => {
+      const scope = shared ? "shared__" : "personal__";
+      localStorage.setItem(scope + key, value);
+      resolve({ key: key, value: value, shared: !!shared });
+    });
+  },
+  list(prefix, shared) {
+    return new Promise((resolve) => {
+      const scope = shared ? "shared__" : "personal__";
+      const fullPrefix = scope + (prefix || "");
+      const keys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k.indexOf(fullPrefix) === 0) keys.push(k.substring(scope.length));
+      }
+      resolve({ keys: keys, prefix: prefix, shared: !!shared });
+    });
+  }
+};
+
+/* ---------- Constants ---------- */
+const ACCESS_CODE = "Die-wiederbelebung-der-religion51!";
+
+const ACTIVITIES = [
+  { id: "dienstag", label: "Dienstagsunterricht", group: "unterricht_pflicht" },
+  { id: "donnerstag", label: "Donnerstagsunterricht", group: "unterricht_pflicht" },
+  { id: "goldene_kette", label: "Goldene Kette / Qur’an Schule", group: "lernen" },
+  { id: "furkantalk", label: "FurkanTalk", group: "lernen" },
+  { id: "samstag", label: "Samstagsunterricht", group: "lernen" },
+  { id: "sonntag", label: "Sonntagsunterricht", group: "lernen" },
+  { id: "arabisch", label: "Arabisch", group: "lernen" },
+  { id: "weekly", label: "Weeklys", group: "pflicht" },
+  { id: "global", label: "Globals", group: "pflicht" },
+  { id: "jawla", label: "Jawla", group: "khidma" },
+  { id: "gaeste", label: "Gespräche mit Gästen in der Majid", group: "khidma" },
+  { id: "story_repost", label: "Beiträge in der Story repostet", group: "khidma" },
+  { id: "freitagsgebet", label: "Freitagsgebet", group: "gebet" },
+  { id: "einzelarbeit", label: "Einzelarbeit", group: "einzel" },
+];
+const PRAYERS = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
+const FASTING_DAYS = ["Montag", "Donnerstag"];
+const QURAN_DAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+
+const RECURRING_ACTIVITIES = [
+  { id: "itikaf", label: "I’tikāf", question: "Warst du beim letzten I’tikāf dabei?" },
+  { id: "jumua_khidma", label: "Jumu’a Khidma", question: "Warst du bei der letzten Jumu’a Khidma dabei?" },
+  { id: "team_events", label: "Team Events", question: "Warst du beim letzten Team Event dabei?" },
+  { id: "majid_events", label: "Majid Events", question: "Warst du beim letzten Majid Event dabei?" },
+  { id: "weisse_tage", label: "Weiße Tage (Ayyam al-Bidh)", question: "Hast du die letzten drei weißen Tage gefastet?" },
+  { id: "janazah", label: "Janazah", question: "Warst du bei der letzten Janazah (Totengebet) dabei?" },
+];
+const RECURRENCE_OPTIONS = [
+  { key: "ja", label: "Ja", counts: true },
+  { key: "nein", label: "Nein", counts: false },
+];
+
+const GROUP_META = {
+  unterricht_pflicht: { title: "Pflicht-Unterricht", hint: "Mindestens einer der beiden ist Pflicht.", icon: "🛡️" },
+  pflicht: { title: "Weeklys & Globals", hint: "Beide sind Pflicht für das Minimum.", icon: "🛡️" },
+  lernen: { title: "Weitere Lernformate", hint: "Zusätzlich, aber nicht Pflicht.", icon: "📋" },
+  ibadah: { title: "Ibadah & Qur’an", hint: "Deine persönliche Gottesdienst-Praxis.", icon: "✨" },
+  khidma: { title: "Khidma & Gemeinschaft", hint: "Dein Dienst für die Majid.", icon: "🤝" },
+  gebet: { title: "Gebete", hint: "Freitagsgebet & Gemeinschaftsgebete.", icon: "✨" },
+  einzel: { title: "Einzelarbeit", hint: "Deine persönliche Entwicklung.", icon: "🎯" },
+};
+
+const REACTION_LABELS = {
+  strong: { icon: "✅", text: "Stark, weiter so" },
+  remind: { icon: "🔔", text: "Ich erinnere dich nächste Woche" },
+  help: { icon: "🤝", text: "Ich helfe dir dabei" },
+  plan: { icon: "📝", text: "Lass uns zusammen planen" },
+};
+
+/* ---------- Helpers ---------- */
+function pad(n) { return n < 10 ? "0" + n : "" + n; }
+function getISOWeekId(date) {
+  date = date || new Date();
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+  return d.getUTCFullYear() + "-W" + pad(weekNo);
+}
+function weekLabel(weekId) {
+  if (!weekId) return "";
+  const parts = weekId.split("-W");
+  return "KW " + parseInt(parts[1], 10) + " · " + parts[0];
+}
+const MONTH_NAMES_DE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+function monthLabel(date) {
+  date = date || new Date();
+  return MONTH_NAMES_DE[date.getMonth()] + " " + date.getFullYear();
+}
+function esc(s) {
+  if (s === null || s === undefined) return "";
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+/* ---------- State ---------- */
+let state = {
+  theme: "dark",
+  stage: "loading",
+  passcodeInput: "",
+  gateError: "",
+  me: null,
+  usernameInput: "",
+  partnerInput: "",
+  partnerEdit: "",
+  loading: false,
+  error: "",
+  checkedActivities: [],
+  checkedPrayers: [],
+  checkedFastingDays: [],
+  checkedQuranDays: [],
+  recurringStatus: {},
+  goals: [],
+  newGoalText: "",
+  reflection: { why: "", hindernis: "", brauche: "", remindMe: false },
+  showReflection: false,
+  lastResult: null,
+  history: [],
+  partnerCheckin: null,
+  partnerReaction: null,
+  reactionSentFlag: "",
+  ranking: [],
+  rankingLoading: false,
+  myRank: null,
+  weekId: getISOWeekId(),
+};
+
+function setStateField(path, value) {
+  const parts = path.split(".");
+  if (parts.length === 1) { state[parts[0]] = value; return; }
+  let obj = state;
+  for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
+  obj[parts[parts.length - 1]] = value;
+}
+
+/* ---------- Derived values ---------- */
+function getMinFlags() {
+  const minUnterricht = state.checkedActivities.indexOf("dienstag") !== -1 || state.checkedActivities.indexOf("donnerstag") !== -1;
+  const minGlobal = state.checkedActivities.indexOf("global") !== -1;
+  const minWeekly = state.checkedActivities.indexOf("weekly") !== -1;
+  return { minUnterricht: minUnterricht, minGlobal: minGlobal, minWeekly: minWeekly, minimumOk: minUnterricht && minGlobal && minWeekly };
+}
+function getPercentageInfo() {
+  const totalPossible = ACTIVITIES.length + RECURRING_ACTIVITIES.length + PRAYERS.length + FASTING_DAYS.length + QURAN_DAYS.length + state.goals.length;
+  const recurringDoneCount = RECURRING_ACTIVITIES.filter(function (r) { return state.recurringStatus[r.id] === "ja"; }).length;
+  const doneGoals = state.goals.filter(function (g) { return g.done; }).length;
+  const checkedCount = state.checkedActivities.length + recurringDoneCount + state.checkedPrayers.length + state.checkedFastingDays.length + state.checkedQuranDays.length + doneGoals;
+  const percentage = totalPossible > 0 ? Math.round((checkedCount / totalPossible) * 100) : 0;
+  return { totalPossible: totalPossible, checkedCount: checkedCount, percentage: percentage };
+}
+function getEvaluation(pct, minOk) {
+  if (!minOk) {
+    return {
+      key: "red", status: "Alarmstufe Rot", color: "var(--danger)",
+      text: "Du musst dringend etwas tun. Die Majid darf nicht nur am Rand deines Lebens stehen. Gerade fehlen Grundlagen, die du nicht unterschreiten solltest. Frag dich ehrlich: Was hält dich zurück? 💔",
+      hint: "Ohne Unterricht, Global und Weekly fehlt dir das Fundament der Woche – das hat Vorrang vor allem anderen.",
+      motivation: "Fang klein an: Nimm dir für nächste Woche genau diese drei Punkte fest vor.",
+    };
+  }
+  if (pct < 40) {
+    return {
+      key: "onlymin", status: "Du bist wach, aber noch nicht aktiv genug", color: "var(--warning)",
+      text: "Du hast das Nötigste gemacht, aber bist du wirklich damit zufrieden? Die Flamme in deinem Herzen war mal größer. Mach nächste Woche mehr als nur Minimum. 🔥",
+      hint: "Das Minimum ist kein Ziel, sondern nur die unterste Grenze.",
+      motivation: "Wähle ein zusätzliches Projekt für nächste Woche, das dir leichtfällt, und leg los.",
+    };
+  }
+  if (pct < 80) {
+    return {
+      key: "solid", status: "Gute Grundlage", color: "var(--accent-strong)",
+      text: "Du bist dabei und man sieht Einsatz. Jetzt geht es darum, beständiger zu werden und nicht nur einzelne Punkte mitzunehmen. Bleib dran und mach deine Absicht stark. 🤲",
+      hint: "Beständigkeit schlägt Intensität. Kleine, regelmäßige Schritte zählen mehr als einzelne große.",
+      motivation: "Nimm dir vor, nächste Woche eine Khidma mehr zu übernehmen.",
+    };
+  }
+  if (pct < 100) {
+    return {
+      key: "good", status: "Zuverlässiger Bruder", color: "var(--success)",
+      text: "Du bist ein Bruder, auf den man sich verlassen kann. Festige deine Absichten und mach weiter so. Möge Allah deine Khidma annehmen. 🩵",
+      hint: "Du bist nah dran. Achte auf die letzten Details, die dir noch fehlen.",
+      motivation: "Versuche nächste Woche, auch die letzten offenen Punkte mitzunehmen.",
+    };
+  }
+  return {
+    key: "perfect", status: "Vorbildliche Woche", color: "var(--accent)",
+    text: "Starke Woche. Du hast wirklich geliefert. Bewahre deine Aufrichtigkeit, bleib bescheiden und zieh andere mit nach vorne. Allahumma barik. 🩵🔥",
+    hint: "Achte darauf, dass Qualität und Aufrichtigkeit mit der Quantität mithalten.",
+    motivation: "Nimm dir vor, einen Bruder mit dir mitzuziehen und ihn einzuladen.",
+  };
+}
+function computeStreak(history) {
+  let s = 0;
+  for (let i = 0; i < history.length; i++) {
+    if (history[i].minimumOk) s++; else break;
+  }
+  return s;
+}
+function computeBadges(streak) {
+  const b = [];
+  if (streak >= 1) b.push({ label: "Minimum erfüllt", icon: "🛡️" });
+  if (streak >= 4) b.push({ label: "4 Wochen stabil", icon: "🔥" });
+  if (streak >= 8) b.push({ label: "Bruder, auf den man zählen kann", icon: "🏅" });
+  return b;
+}
+function groupedActivities() {
+  const g = {};
+  ACTIVITIES.forEach(function (a) { (g[a.group] = g[a.group] || []).push(a); });
+  return g;
+}
+/* ---------- Render: small pieces ---------- */
+function renderLoading() {
+  return '<div style="margin:auto;display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--text-muted);min-height:100vh;justify-content:center;">' +
+    '<div class="spin" style="font-size:26px;">⏳</div><span style="font-size:13px;">Wird geladen …</span></div>';
+}
+
+function renderGate() {
+  return '<div class="login-wrap">' +
+    '<div class="login-logo"><span style="font-size:34px;">🔒</span></div>' +
+    '<div class="login-title">Zugang Furkan Zentrum</div>' +
+    '<div class="login-sub">Diese App ist nur für unsere Brüder gedacht. Gib den Zugangscode ein, um fortzufahren.</div>' +
+    '<input class="input-field" type="password" placeholder="Zugangscode" data-bind="passcodeInput" data-enter-action="gate-submit" value="' + esc(state.passcodeInput) + '">' +
+    (state.gateError ? '<div class="error-text">' + esc(state.gateError) + '</div>' : '') +
+    '<button class="primary-btn" style="margin-top:18px;" data-action="gate-submit" ' + (state.loading ? "disabled" : "") + '>' +
+    (state.loading ? '<span class="spin">⏳</span>' : 'Weiter ›') + '</button>' +
+    '</div>';
+}
+
+function renderLogin() {
+  return '<div class="login-wrap">' +
+    '<div class="login-logo"><img src="' + LOGO_SRC + '" alt="Furkan Zentrum Logo"></div>' +
+    '<div class="login-title">Furkan Wochen-Check-in</div>' +
+    '<div class="login-sub">Spornt euch als 2er-Gruppe gegenseitig an – Woche für Woche, ehrlich und brüderlich.</div>' +
+    '<input class="input-field" placeholder="Dein Name" data-bind="usernameInput" value="' + esc(state.usernameInput) + '">' +
+    '<input class="input-field" placeholder="Name deines 2er-Partners (optional)" data-bind="partnerInput" value="' + esc(state.partnerInput) + '">' +
+    '<div class="input-note">Dein Partner meldet sich unter seinem eigenen Namen an – so könnt ihr euch gegenseitig sehen.</div>' +
+    (state.error ? '<div class="error-text">' + esc(state.error) + '</div>' : '') +
+    '<button class="primary-btn" style="margin-top:18px;" data-action="login" ' + (state.loading ? "disabled" : "") + '>' +
+    (state.loading ? '<span class="spin">⏳</span>' : 'Loslegen ›') + '</button>' +
+    '</div>';
+}
+
+function renderHeader() {
+  return '<header class="fz-header">' +
+    '<div class="fz-logo-badge"><img src="' + LOGO_SRC + '" alt="Logo"></div>' +
+    '<div><div class="fz-header-title">Furkan Zentrum</div><div class="fz-header-sub">' + esc(weekLabel(state.weekId)) + '</div></div>' +
+    '<button class="theme-toggle" data-action="toggle-theme">' + (state.theme === "dark" ? "☀️" : "🌙") + '</button>' +
+    '</header>';
+}
+
+function renderBottomNav() {
+  const items = [
+    { key: "home", label: "Start", icon: "🏠" },
+    { key: "checkin", label: "Check-in", icon: "✅" },
+    { key: "partner", label: "Partner", icon: "👥" },
+    { key: "history", label: "Verlauf", icon: "🕘" },
+  ];
+  let html = '<nav class="bottom-nav">';
+  items.forEach(function (it) {
+    const active = state.stage === it.key || (it.key === "checkin" && state.stage === "result") || (it.key === "home" && state.stage === "goals");
+    html += '<button class="nav-item ' + (active ? "active" : "") + '" data-action="go-stage" data-id="' + it.key + '">' +
+      '<span style="font-size:18px;">' + it.icon + '</span><span>' + it.label + '</span></button>';
+  });
+  html += '</nav>';
+  return html;
+}
+
+function bigButton(icon, label, sub, action, accent) {
+  return '<button class="big-btn" data-action="' + action + '" ' + (accent ? 'style="border-color:var(--accent);"' : "") + '>' +
+    '<div class="big-btn-icon" style="font-size:18px;">' + icon + '</div>' +
+    '<div class="big-btn-text"><span class="big-btn-label">' + esc(label) + '</span>' +
+    (sub ? '<span class="big-btn-sub">' + esc(sub) + '</span>' : "") + '</div>' +
+    '<span class="big-btn-chevron">›</span></button>';
+}
+
+function minimumBanner(minUnterricht, minGlobal, minWeekly) {
+  const items = [
+    { ok: minUnterricht, label: "Unterricht (Di/Do)" },
+    { ok: minGlobal, label: "Global" },
+    { ok: minWeekly, label: "Weekly" },
+  ];
+  const allOk = minUnterricht && minGlobal && minWeekly;
+  let html = '<div class="min-banner ' + (allOk ? "ok" : "warn") + '">' +
+    '<div class="min-banner-head">' + (allOk ? "✓" : "⚠️") + '<span>' + (allOk ? "Minimum erfüllt" : "Minimum diese Woche") + '</span></div>' +
+    '<div class="min-banner-items">';
+  items.forEach(function (it) {
+    html += '<span class="min-chip ' + (it.ok ? "ok" : "open") + '">' + (it.ok ? "erfüllt" : "offen") + ' · ' + it.label + '</span>';
+  });
+  html += '</div></div>';
+  return html;
+}
+
+function weekCompassSVG(percentage, minUnterricht, minGlobal, minWeekly, size) {
+  size = size || 176;
+  const r1 = 58, r2 = 70, cx = 88, cy = 88;
+  const seg = 2 * Math.PI * r1;
+  const segLen = seg / 3 - 7;
+  const gap = seg - segLen;
+  const outer = 2 * Math.PI * r2;
+  const pillars = [
+    { ok: minUnterricht, rot: -90 },
+    { ok: minGlobal, rot: 30 },
+    { ok: minWeekly, rot: 150 },
+  ];
+  let svg = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 176 176">';
+  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r2 + '" fill="none" stroke="var(--border)" stroke-width="6"/>';
+  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r2 + '" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" ' +
+    'stroke-dasharray="' + ((percentage / 100) * outer) + ' ' + outer + '" transform="rotate(-90 ' + cx + ' ' + cy + ')"/>';
+  pillars.forEach(function (p) {
+    svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r1 + '" fill="none" stroke="' + (p.ok ? "var(--success)" : "var(--surface-2)") + '" stroke-width="11" ' +
+      'stroke-dasharray="' + segLen + ' ' + gap + '" stroke-linecap="round" transform="rotate(' + p.rot + ' ' + cx + ' ' + cy + ')"/>';
+  });
+  svg += '<g transform="translate(' + cx + ' ' + cy + ')" opacity="0.55" fill="var(--accent)">' +
+    '<path d="M0,-13 L3.2,-3.2 L13,0 L3.2,3.2 L0,13 L-3.2,3.2 L-13,0 L-3.2,-3.2 Z"/></g>';
+  svg += '<text x="' + cx + '" y="' + (cy + 34) + '" text-anchor="middle" font-size="24" font-weight="700" fill="var(--text)" font-family="Outfit, sans-serif">' + percentage + '%</text>';
+  svg += '</svg>';
+  return svg;
+}
+
+function starFieldSVG() {
+  return '<svg class="star-field" viewBox="0 0 400 200" preserveAspectRatio="none" aria-hidden="true">' +
+    '<defs><pattern id="starPattern" width="40" height="40" patternUnits="userSpaceOnUse">' +
+    '<path d="M20,8 L23,17 L32,20 L23,23 L20,32 L17,23 L8,20 L17,17 Z" fill="currentColor"/></pattern></defs>' +
+    '<rect width="400" height="200" fill="url(#starPattern)"/></svg>';
+}
+
+/* ---------- Render: screens ---------- */
+function renderHome() {
+  const streak = computeStreak(state.history);
+  const badges = computeBadges(streak);
+  let html = '<div class="hero">' + starFieldSVG() +
+    '<div class="hero-content">' +
+    '<div class="hero-eyebrow">As-salāmu ‘alaikum, ' + esc(state.me.username) + '</div>' +
+    '<div class="hero-title">Deine Woche im Furkan Zentrum</div>' +
+    '<div class="hero-sub">' + (state.lastResult ? "Du hast diese Woche bereits eingecheckt. Schau dir deine Bewertung an oder überarbeite sie." : "Du hast diese Woche noch nicht eingecheckt. Nimm dir kurz Zeit dafür.") + '</div>' +
+    '<div class="stat-row">' +
+    '<div class="stat-pill"><div class="stat-pill-num">🔥 ' + streak + '</div><div class="stat-pill-label">Wochen-Streak</div></div>' +
+    '<div class="stat-pill"><div class="stat-pill-num">' + (state.lastResult ? state.lastResult.percentage + "%" : "–") + '</div><div class="stat-pill-label">Diese Woche</div></div>' +
+    '</div></div></div>';
+
+  if (badges.length > 0) {
+    html += '<div class="badge-row">';
+    badges.forEach(function (b) { html += '<div class="badge-item">' + b.icon + ' ' + esc(b.label) + '</div>'; });
+    html += '</div>';
+  }
+
+  html += '<div class="section-title">Aktionen</div>';
+  html += bigButton("✅", state.lastResult ? "Check-in ansehen / ändern" : "Wochen-Check-in starten", "Halte fest, was du diese Woche geschafft hast", state.lastResult ? "go-result" : "start-checkin", true);
+  html += bigButton("👥", "Mein 2er-Partner", state.me.partner ? "Partner: " + state.me.partner : "Noch kein Partner hinterlegt", "go-partner");
+  html += bigButton("🎯", "Meine Ziele", "Persönliche Ziele für die kommende Woche", "go-goals");
+  html += bigButton("🕘", "Wochenbewertung & Verlauf", "Deine bisherigen Wochen im Überblick", "go-history");
+  html += bigButton("🏆", "Rangliste", "Top 10 diesen Monat – " + monthLabel(), "go-ranking");
+  return html;
+}
+
+function renderGoals() {
+  let html = '<div class="stepper-top"><button class="back-btn" data-action="go-stage" data-id="home">‹</button>' +
+    '<div style="font-family:Outfit,sans-serif;font-weight:700;font-size:16px;">Meine Ziele</div></div>';
+  html += '<div class="card">' +
+    '<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:10px;">Diese Ziele nimmst du automatisch mit in deinen nächsten Wochen-Check-in.</div>' +
+    '<div class="goal-input-row">' +
+    '<input class="goal-input" placeholder="z.B. Einen Bruder zum Unterricht einladen" data-bind="newGoalText" data-enter-action="add-goal" value="' + esc(state.newGoalText) + '">' +
+    '<button class="goal-add-btn" data-action="add-goal">+</button></div>';
+  if (state.goals.length === 0) {
+    html += '<div style="font-size:12.5px;color:var(--text-muted);">Noch keine persönlichen Ziele eingetragen.</div>';
+  }
+  state.goals.forEach(function (g) {
+    html += '<div class="goal-row">' +
+      '<div class="checkbox ' + (g.done ? "checked" : "") + '" data-action="toggle-goal" data-id="' + g.id + '">' + (g.done ? "✓" : "") + '</div>' +
+      '<span style="font-size:13px;' + (g.done ? "text-decoration:line-through;opacity:0.6;" : "") + '">' + esc(g.text) + '</span>' +
+      '<button class="goal-remove" data-action="remove-goal" data-id="' + g.id + '">✕</button></div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderCheckin() {
+  const flags = getMinFlags();
+  let html = '<div class="stepper-top"><button class="back-btn" data-action="go-stage" data-id="home">‹</button>' +
+    '<div style="font-family:Outfit,sans-serif;font-weight:700;font-size:16px;">Wochen-Check-in</div></div>';
+
+  html += minimumBanner(flags.minUnterricht, flags.minGlobal, flags.minWeekly);
+
+  const grouped = groupedActivities();
+  Object.keys(grouped).forEach(function (groupKey) {
+    const meta = GROUP_META[groupKey];
+    const items = grouped[groupKey];
+    html += '<div class="group-block"><div class="group-head">' +
+      '<div class="group-head-icon" style="font-size:13px;">' + meta.icon + '</div>' +
+      '<div><div class="group-head-title">' + meta.title + '</div><div class="group-head-hint">' + meta.hint + '</div></div></div>';
+    items.forEach(function (a) {
+      const checked = state.checkedActivities.indexOf(a.id) !== -1;
+      html += '<div class="check-row ' + (checked ? "checked" : "") + '" data-action="toggle-activity" data-id="' + a.id + '">' +
+        '<div class="checkbox ' + (checked ? "checked" : "") + '">' + (checked ? "✓" : "") + '</div>' +
+        '<span class="check-label">' + esc(a.label) + '</span></div>';
+    });
+    if (groupKey === "gebet") {
+      html += '<div class="prayer-grid" style="margin-top:4px;">';
+      PRAYERS.forEach(function (p) {
+        const checked = state.checkedPrayers.indexOf(p) !== -1;
+        html += '<div class="prayer-chip ' + (checked ? "checked" : "") + '" data-action="toggle-prayer" data-id="' + p + '">' + p + '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+
+  html += '<div class="group-block"><div class="group-head">' +
+    '<div class="group-head-icon" style="font-size:13px;">' + GROUP_META.ibadah.icon + '</div>' +
+    '<div><div class="group-head-title">' + GROUP_META.ibadah.title + '</div><div class="group-head-hint">' + GROUP_META.ibadah.hint + '</div></div></div>' +
+    '<div class="check-label" style="color:var(--text-muted);font-size:12px;margin-bottom:6px;">Mindestens 1 Seite Qur’an gelesen – an welchen Tagen?</div>' +
+    '<div class="prayer-grid" style="margin-bottom:14px;">';
+  QURAN_DAYS.forEach(function (d) {
+    const checked = state.checkedQuranDays.indexOf(d) !== -1;
+    html += '<div class="prayer-chip ' + (checked ? "checked" : "") + '" data-action="toggle-quran-day" data-id="' + d + '">' + d + '</div>';
+  });
+  html += '</div>' +
+    '<div class="check-label" style="color:var(--text-muted);font-size:12px;margin-bottom:6px;">Sunnah-Fasten (Montag / Donnerstag) – Mehrfachauswahl möglich</div>' +
+    '<div class="prayer-grid">';
+  FASTING_DAYS.forEach(function (d) {
+    const checked = state.checkedFastingDays.indexOf(d) !== -1;
+    html += '<div class="prayer-chip ' + (checked ? "checked" : "") + '" data-action="toggle-fasting-day" data-id="' + d + '">' + d + '</div>';
+  });
+  html += '</div></div>';
+
+  html += '<div class="group-block"><div class="group-head">' +
+    '<div class="group-head-icon" style="font-size:13px;">🤝</div>' +
+    '<div><div class="group-head-title">Wann warst du zuletzt dabei?</div><div class="group-head-hint">Diese Formate finden nicht jede Woche statt.</div></div></div>';
+  RECURRING_ACTIVITIES.forEach(function (r) {
+    html += '<div class="recurring-item"><div class="recurring-item-label">' + esc(r.question) + '</div><div class="recurring-chip-row">';
+    RECURRENCE_OPTIONS.forEach(function (opt) {
+      const active = state.recurringStatus[r.id] === opt.key;
+      html += '<div class="recurring-chip ' + (active ? "active" : "") + ' ' + (active && opt.counts ? "counts" : "") + '" ' +
+        'data-action="set-recurring" data-id="' + r.id + "::" + opt.key + '">' + opt.label + '</div>';
+    });
+    html += '</div></div>';
+  });
+  html += '</div>';
+
+  html += '<div class="group-block"><div class="group-head">' +
+    '<div class="group-head-icon" style="font-size:13px;">🎯</div>' +
+    '<div><div class="group-head-title">Persönliche Ziele</div><div class="group-head-hint">Eigene Vorhaben für diese Woche.</div></div></div>' +
+    '<div class="goal-input-row"><input class="goal-input" placeholder="Neues Ziel hinzufügen …" data-bind="newGoalText" data-enter-action="add-goal" value="' + esc(state.newGoalText) + '">' +
+    '<button class="goal-add-btn" data-action="add-goal">+</button></div>';
+  state.goals.forEach(function (g) {
+    html += '<div class="check-row ' + (g.done ? "checked" : "") + '" data-action="toggle-goal" data-id="' + g.id + '">' +
+      '<div class="checkbox ' + (g.done ? "checked" : "") + '">' + (g.done ? "✓" : "") + '</div>' +
+      '<span class="check-label" style="flex:1;">' + esc(g.text) + '</span>' +
+      '<button class="goal-remove" data-action="remove-goal" data-id="' + g.id + '">✕</button></div>';
+  });
+  html += '</div>';
+
+  if (state.showReflection && !flags.minimumOk) {
+    html += '<div class="card" style="margin-bottom:16px;border-color:var(--danger);">' +
+      '<div style="display:flex;align-items:center;gap:8px;color:var(--danger);font-weight:700;font-size:13.5px;">⚠️ Bevor du absendest</div>' +
+      '<div style="font-size:12px;color:var(--text-muted);margin-top:6px;">Das Minimum fehlt noch. Nimm dir kurz Zeit für diese Fragen – brüderlich und ehrlich.</div>' +
+      '<label class="field-label">Warum hast du das Minimum nicht geschafft?</label>' +
+      '<textarea class="textarea" data-bind="reflection.why">' + esc(state.reflection.why) + '</textarea>' +
+      '<label class="field-label">Was war das größte Hindernis?</label>' +
+      '<textarea class="textarea" data-bind="reflection.hindernis">' + esc(state.reflection.hindernis) + '</textarea>' +
+      '<label class="field-label">Was brauchst du, damit es nächste Woche besser wird?</label>' +
+      '<textarea class="textarea" data-bind="reflection.brauche">' + esc(state.reflection.brauche) + '</textarea>' +
+      '<div class="toggle-row"><span style="font-size:12.5px;">Soll dein 2er-Partner dich daran erinnern?</span>' +
+      '<div class="switch ' + (state.reflection.remindMe ? "on" : "") + '" data-action="toggle-remind"><div class="switch-knob"></div></div></div>' +
+      '</div>';
+  }
+
+  html += '<button class="primary-btn" data-action="submit-checkin" ' + (state.loading ? "disabled" : "") + '>' +
+    (state.loading ? '<span class="spin">⏳</span>' : 'Check-in abschließen ›') + '</button>';
+  return html;
+}
+
+function renderResult() {
+  const r = state.lastResult;
+  if (!r) return renderHome();
+  const ev = getEvaluation(r.percentage, r.minimumOk);
+  let html = '<div class="stepper-top"><button class="back-btn" data-action="go-stage" data-id="home">‹</button>' +
+    '<div style="font-family:Outfit,sans-serif;font-weight:700;font-size:16px;">Deine Wochenbewertung</div></div>';
+
+  html += '<div class="card result-card">';
+  html += weekCompassSVG(r.percentage, r.minUnterricht, r.minGlobal, r.minWeekly);
+  html += '<div class="result-status" style="color:' + ev.color + ';">' + esc(ev.status) + '</div>';
+  html += '<div class="result-text">' + esc(ev.text) + '</div>';
+  html += '<div class="result-block"><div class="result-block-label">Verbesserungshinweis</div><div class="result-text" style="margin-top:0;">' + esc(ev.hint) + '</div></div>';
+  html += '<div class="result-block"><div class="result-block-label">Motivation für nächste Woche</div><div class="result-text" style="margin-top:0;">' + esc(ev.motivation) + '</div></div>';
+  if (state.partnerReaction) {
+    const rl = REACTION_LABELS[state.partnerReaction.type];
+    html += '<div class="result-block"><div class="result-block-label">Rückmeldung von ' + esc(state.partnerReaction.from) + '</div>' +
+      '<div class="result-text" style="margin-top:0;">' + (rl ? rl.icon + " " + rl.text : "") + '</div></div>';
+  }
+  html += '</div>';
+
+  html += '<div class="section-title">Deine Woche im Überblick</div><div class="card">';
+  html += '<div class="summary-row"><span>Unterricht (Di/Do)</span><span class="' + (r.minUnterricht ? "badge-ok" : "badge-open") + '">' + (r.minUnterricht ? "erfüllt" : "nicht erfüllt") + '</span></div>';
+  html += '<div class="summary-row"><span>Global</span><span class="' + (r.minGlobal ? "badge-ok" : "badge-open") + '">' + (r.minGlobal ? "erfüllt" : "nicht erfüllt") + '</span></div>';
+  html += '<div class="summary-row"><span>Weekly</span><span class="' + (r.minWeekly ? "badge-ok" : "badge-open") + '">' + (r.minWeekly ? "erfüllt" : "nicht erfüllt") + '</span></div>';
+  html += '<div class="summary-row"><span>Projekte insgesamt</span><span>' + r.activities.length + ' von ' + ACTIVITIES.length + '</span></div>';
+  html += '<div class="summary-row"><span>Gemeinschaftsgebete</span><span>' + r.prayers.length + ' von ' + PRAYERS.length + '</span></div>';
+  html += '<div class="summary-row"><span>Qur’an-Tage</span><span>' + (r.quranDays || []).length + ' von ' + QURAN_DAYS.length + '</span></div>';
+  html += '<div class="summary-row"><span>Sunnah-Fasten</span><span>' + (r.fastingDays || []).length + ' von ' + FASTING_DAYS.length + '</span></div>';
+  html += '<div class="summary-row"><span>Persönliche Ziele</span><span>' + r.goals.filter(function (g) { return g.done; }).length + ' von ' + r.goals.length + '</span></div>';
+  html += '<div class="summary-row"><span>Gesamtbewertung</span><span style="font-weight:700;color:var(--accent);">' + r.percentage + '%</span></div>';
+  html += '</div>';
+
+  if (r.recurring && Object.keys(r.recurring).length > 0) {
+    html += '<div class="section-title">Wann warst du zuletzt dabei?</div><div class="card">';
+    RECURRING_ACTIVITIES.forEach(function (ra) {
+      const val = r.recurring[ra.id];
+      const opt = RECURRENCE_OPTIONS.filter(function (o) { return o.key === val; })[0];
+      html += '<div class="summary-row"><span>' + esc(ra.label) + '</span><span class="' + (opt && opt.counts ? "badge-ok" : "") + '" style="' + (!opt ? "color:var(--text-muted);" : "") + '">' +
+        (opt ? opt.label : "keine Angabe") + '</span></div>';
+    });
+    html += '</div>';
+  }
+
+  html += '<button class="secondary-btn" data-action="start-checkin">Check-in überarbeiten</button>';
+  return html;
+}
+
+function renderPartner() {
+  let html = '<div class="stepper-top"><button class="back-btn" data-action="go-stage" data-id="home">‹</button>' +
+    '<div style="font-family:Outfit,sans-serif;font-weight:700;font-size:16px;">Mein 2er-Partner</div></div>';
+
+  html += '<div class="card" style="margin-bottom:16px;">' +
+    '<div class="field-label" style="margin-top:0;">Partnername</div>' +
+    '<input class="input-field" style="margin-top:8px;" data-bind="partnerEdit" value="' + esc(state.partnerEdit) + '" placeholder="Name deines Partners">' +
+    '<button class="secondary-btn" data-action="save-partner" ' + (state.loading ? "disabled" : "") + '>Speichern</button></div>';
+
+  if (!state.me.partner) {
+    html += '<div class="empty-state">Trage oben den Namen deines 2er-Partners ein, um seinen Check-in zu sehen.</div>';
+    return html;
+  }
+
+  if (!state.partnerCheckin) {
+    html += '<div class="card"><div style="display:flex;align-items:center;gap:8px;color:var(--warning);font-weight:700;font-size:13.5px;">🔔 Noch kein Check-in</div>' +
+      '<div style="font-size:13px;color:var(--text-muted);margin-top:8px;">' + esc(state.me.partner) + ' hat seinen Check-in für ' + esc(weekLabel(state.weekId)) + ' noch nicht gemacht. Erinnere ihn brüderlich.</div></div>';
+    return html;
+  }
+
+  const pc = state.partnerCheckin;
+  const ev = getEvaluation(pc.percentage, pc.minimumOk);
+  html += '<div class="card" style="margin-bottom:16px;">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+    '<div style="font-weight:700;font-size:14.5px;">' + esc(state.me.partner) + '</div>' +
+    '<div style="font-weight:700;font-size:14.5px;color:' + ev.color + ';">' + pc.percentage + '%</div></div>' +
+    '<div style="font-size:12.5px;color:' + ev.color + ';font-weight:600;margin-top:4px;">' + esc(ev.status) + '</div>' +
+    '<div class="summary-row" style="margin-top:10px;"><span>Unterricht</span><span class="' + (pc.minUnterricht ? "badge-ok" : "badge-open") + '">' + (pc.minUnterricht ? "erfüllt" : "offen") + '</span></div>' +
+    '<div class="summary-row"><span>Global</span><span class="' + (pc.minGlobal ? "badge-ok" : "badge-open") + '">' + (pc.minGlobal ? "erfüllt" : "offen") + '</span></div>' +
+    '<div class="summary-row"><span>Weekly</span><span class="' + (pc.minWeekly ? "badge-ok" : "badge-open") + '">' + (pc.minWeekly ? "erfüllt" : "offen") + '</span></div>';
+  if (pc.reflection && pc.reflection.remindMe) {
+    html += '<div style="margin-top:10px;font-size:12px;color:var(--danger);">' + esc(state.me.partner) + ' möchte, dass du ihn nächste Woche erinnerst.</div>';
+  }
+  html += '</div>';
+
+  html += '<div class="section-title">Reagiere auf ' + esc(state.me.partner) + '</div><div class="reaction-grid">';
+  Object.keys(REACTION_LABELS).forEach(function (key) {
+    const val = REACTION_LABELS[key];
+    html += '<div class="reaction-btn ' + (state.reactionSentFlag === key ? "sent" : "") + '" data-action="send-reaction" data-id="' + key + '">' + val.icon + ' ' + val.text + '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderHistory() {
+  const streak = computeStreak(state.history);
+  let html = '<div class="stepper-top"><button class="back-btn" data-action="go-stage" data-id="home">‹</button>' +
+    '<div style="font-family:Outfit,sans-serif;font-weight:700;font-size:16px;">Wochenverlauf</div></div>';
+  html += '<div class="stat-row" style="margin-bottom:16px;">' +
+    '<div class="stat-pill"><div class="stat-pill-num">🔥 ' + streak + '</div><div class="stat-pill-label">Aktuelle Streak</div></div>' +
+    '<div class="stat-pill"><div class="stat-pill-num">' + state.history.length + '</div><div class="stat-pill-label">Wochen erfasst</div></div></div>';
+
+  if (state.history.length === 0) {
+    html += '<div class="empty-state">Noch keine Check-ins gespeichert. Starte deinen ersten Wochen-Check-in!</div>';
+    return html;
+  }
+
+  state.history.forEach(function (h) {
+    const ev = getEvaluation(h.percentage, h.minimumOk);
+    html += '<div class="history-item"><div class="history-pct" style="border-color:' + ev.color + ';color:' + ev.color + ';">' + h.percentage + '%</div>' +
+      '<div style="flex:1;"><div class="history-week">' + esc(weekLabel(h.weekId)) + '</div><div class="history-status">' + esc(ev.status) + '</div></div>' +
+      '<span style="font-size:18px;color:' + (h.minimumOk ? "var(--success)" : "var(--danger)") + ';">' + (h.minimumOk ? "✓" : "⚠️") + '</span></div>';
+  });
+  return html;
+}
+
+function renderRanking() {
+  let html = '<div class="stepper-top"><button class="back-btn" data-action="go-stage" data-id="home">‹</button>' +
+    '<div style="font-family:Outfit,sans-serif;font-weight:700;font-size:16px;">Rangliste – ' + esc(monthLabel()) + '</div></div>';
+
+  if (state.rankingLoading) {
+    html += '<div class="empty-state">Wird geladen …</div>';
+    return html;
+  }
+  if (state.ranking.length === 0) {
+    html += '<div class="empty-state">Noch keine Check-ins in diesem Monat – sei der Erste!</div>';
+    return html;
+  }
+  state.ranking.forEach(function (r, i) {
+    const isMe = state.me && r.username === state.me.username;
+    html += '<div class="history-item" style="' + (isMe ? "border-color:var(--accent);" : "") + '">' +
+      '<div class="history-pct" style="border-color:' + (i < 3 ? "var(--gold)" : "var(--border)") + ';color:' + (i < 3 ? "var(--gold)" : "var(--text)") + ';">' + (i + 1) + '.</div>' +
+      '<div style="flex:1;"><div class="history-week">' + esc(r.username) + (isMe ? " (Du)" : "") + '</div>' +
+      '<div class="history-status">' + r.weeks + (r.weeks === 1 ? " Woche" : " Wochen") + ' · Ø ' + r.avg + '%</div></div>' +
+      (i === 0 ? '<span style="font-size:18px;">🏆</span>' : '') + '</div>';
+  });
+  if (state.myRank && state.myRank.position > 10) {
+    html += '<div class="card" style="margin-top:12px;"><div style="font-size:13px;">Dein Platz diesen Monat: <strong>#' + state.myRank.position + '</strong> mit Ø ' + state.myRank.avg + '% (' + state.myRank.weeks + (state.myRank.weeks === 1 ? " Woche" : " Wochen") + ')</div></div>';
+  }
+  return html;
+}
+
+function renderStage() {
+  if (state.stage === "home") return renderHome();
+  if (state.stage === "goals") return renderGoals();
+  if (state.stage === "checkin") return renderCheckin();
+  if (state.stage === "result") return renderResult();
+  if (state.stage === "partner") return renderPartner();
+  if (state.stage === "history") return renderHistory();
+  if (state.stage === "ranking") return renderRanking();
+  return renderHome();
+}
+
+/* ---------- Main render dispatcher ---------- */
+function render() {
+  const app = document.getElementById("app");
+  app.setAttribute("data-theme", state.theme);
+  let html = "";
+  if (state.stage === "loading") html = renderLoading();
+  else if (state.stage === "gate") html = renderGate();
+  else if (state.stage === "login") html = renderLogin();
+  else html = renderHeader() + '<div class="fz-scroll">' + renderStage() + "</div>" + renderBottomNav();
+  app.innerHTML = html;
+  attachHandlers();
+}
+/* ---------- Data loading ---------- */
+async function loadUserData(username, partner) {
+  try {
+    const res = await storage.get("checkin:" + username + ":" + state.weekId, true);
+    state.lastResult = res && res.value ? JSON.parse(res.value) : null;
+  } catch (e) { state.lastResult = null; }
+
+  try {
+    const listRes = await storage.list("checkin:" + username + ":", true);
+    const entries = [];
+    if (listRes && listRes.keys) {
+      for (let i = 0; i < listRes.keys.length; i++) {
+        try {
+          const r = await storage.get(listRes.keys[i], true);
+          if (r && r.value) entries.push(JSON.parse(r.value));
+        } catch (e) {}
+      }
+    }
+    entries.sort(function (a, b) { return b.weekId > a.weekId ? 1 : -1; });
+    state.history = entries;
+  } catch (e) { state.history = []; }
+
+  if (partner) {
+    try {
+      const pres = await storage.get("checkin:" + partner + ":" + state.weekId, true);
+      state.partnerCheckin = pres && pres.value ? JSON.parse(pres.value) : null;
+    } catch (e) { state.partnerCheckin = null; }
+  } else {
+    state.partnerCheckin = null;
+  }
+
+  try {
+    const rres = await storage.get("reaction:" + username + ":" + state.weekId, true);
+    state.partnerReaction = rres && rres.value ? JSON.parse(rres.value) : null;
+  } catch (e) { state.partnerReaction = null; }
+}
+
+async function loadRanking() {
+  state.rankingLoading = true;
+  render();
+  try {
+    const profilesRes = await storage.list("profile:", true);
+    const usernames = (profilesRes && profilesRes.keys ? profilesRes.keys : []).map(function (k) { return k.slice("profile:".length); });
+    const now = new Date();
+    const results = [];
+    for (let i = 0; i < usernames.length; i++) {
+      const uname = usernames[i];
+      try {
+        const listRes = await storage.list("checkin:" + uname + ":", true);
+        const keys = listRes && listRes.keys ? listRes.keys : [];
+        let sum = 0, count = 0;
+        for (let j = 0; j < keys.length; j++) {
+          try {
+            const r = await storage.get(keys[j], true);
+            if (r && r.value) {
+              const rec = JSON.parse(r.value);
+              const d = new Date(rec.timestamp);
+              if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
+                sum += rec.percentage; count++;
+              }
+            }
+          } catch (e) {}
+        }
+        if (count > 0) results.push({ username: uname, avg: Math.round(sum / count), weeks: count });
+      } catch (e) {}
+    }
+    results.sort(function (a, b) { return (b.avg - a.avg) || (b.weeks - a.weeks); });
+    state.ranking = results.slice(0, 10);
+    const idx = results.findIndex(function (r) { return state.me && r.username === state.me.username; });
+    state.myRank = idx === -1 ? null : Object.assign({ position: idx + 1 }, results[idx]);
+  } catch (e) {}
+  state.rankingLoading = false;
+  render();
+}
+
+async function init() {
+  try {
+    const gate = await storage.get("gate-passed", false);
+    if (gate && gate.value === "true") {
+      await continueAfterGate();
+    } else {
+      state.stage = "gate";
+    }
+  } catch (e) {
+    state.stage = "gate";
+  }
+  render();
+}
+
+async function continueAfterGate() {
+  try {
+    const saved = await storage.get("my-profile", false);
+    if (saved && saved.value) {
+      const profile = JSON.parse(saved.value);
+      state.me = profile;
+      state.partnerEdit = profile.partner || "";
+      await loadUserData(profile.username, profile.partner);
+      state.stage = "home";
+    } else {
+      state.stage = "login";
+    }
+  } catch (e) {
+    state.stage = "login";
+  }
+}
+
+/* ---------- Actions ---------- */
+async function handleGateSubmit() {
+  if (state.passcodeInput === ACCESS_CODE) {
+    state.gateError = "";
+    state.loading = true;
+    render();
+    try { await storage.set("gate-passed", "true", false); } catch (e) {}
+    state.loading = false;
+    await continueAfterGate();
+    render();
+  } else {
+    state.gateError = "Der Code ist leider falsch. Frag deinen 2er-Partner oder das Furkan-Team.";
+    render();
+  }
+}
+
+async function handleLogin() {
+  if (!state.usernameInput.trim()) { state.error = "Bitte gib deinen Namen ein."; render(); return; }
+  state.loading = true; state.error = ""; render();
+  const profile = { username: state.usernameInput.trim(), partner: state.partnerInput.trim() || null };
+  try {
+    await storage.set("my-profile", JSON.stringify(profile), false);
+    await storage.set("profile:" + profile.username, JSON.stringify(profile), true);
+    state.me = profile;
+    state.partnerEdit = profile.partner || "";
+    await loadUserData(profile.username, profile.partner);
+    state.stage = "home";
+  } catch (e) { state.error = "Speichern fehlgeschlagen. Bitte erneut versuchen."; }
+  state.loading = false;
+  render();
+}
+
+async function savePartner() {
+  if (!state.partnerEdit.trim()) return;
+  state.loading = true; render();
+  const updated = Object.assign({}, state.me, { partner: state.partnerEdit.trim() });
+  try {
+    await storage.set("my-profile", JSON.stringify(updated), false);
+    await storage.set("profile:" + state.me.username, JSON.stringify(updated), true);
+    state.me = updated;
+    await loadUserData(updated.username, updated.partner);
+  } catch (e) {}
+  state.loading = false;
+  render();
+}
+
+function toggleActivity(id) {
+  const idx = state.checkedActivities.indexOf(id);
+  if (idx === -1) state.checkedActivities.push(id); else state.checkedActivities.splice(idx, 1);
+  render();
+}
+function togglePrayer(p) {
+  const idx = state.checkedPrayers.indexOf(p);
+  if (idx === -1) state.checkedPrayers.push(p); else state.checkedPrayers.splice(idx, 1);
+  render();
+}
+function toggleFastingDay(d) {
+  const idx = state.checkedFastingDays.indexOf(d);
+  if (idx === -1) state.checkedFastingDays.push(d); else state.checkedFastingDays.splice(idx, 1);
+  render();
+}
+function toggleQuranDay(d) {
+  const idx = state.checkedQuranDays.indexOf(d);
+  if (idx === -1) state.checkedQuranDays.push(d); else state.checkedQuranDays.splice(idx, 1);
+  render();
+}
+function setRecurring(compositeId) {
+  const parts = compositeId.split("::");
+  const id = parts[0], key = parts[1];
+  state.recurringStatus[id] = state.recurringStatus[id] === key ? null : key;
+  render();
+}
+function addGoal() {
+  if (!state.newGoalText.trim()) return;
+  state.goals.push({ id: Date.now().toString(), text: state.newGoalText.trim(), done: false });
+  state.newGoalText = "";
+  render();
+}
+function toggleGoal(id) {
+  state.goals = state.goals.map(function (g) { return g.id === id ? Object.assign({}, g, { done: !g.done }) : g; });
+  render();
+}
+function removeGoal(id) {
+  state.goals = state.goals.filter(function (g) { return g.id !== id; });
+  render();
+}
+
+async function submitCheckin() {
+  const flags = getMinFlags();
+  if (!flags.minimumOk && !state.showReflection) { state.showReflection = true; render(); return; }
+  state.loading = true; render();
+  const pctInfo = getPercentageInfo();
+  const evalResult = getEvaluation(pctInfo.percentage, flags.minimumOk);
+  const record = {
+    username: state.me.username, weekId: state.weekId, timestamp: Date.now(),
+    activities: state.checkedActivities.slice(), prayers: state.checkedPrayers.slice(),
+    fastingDays: state.checkedFastingDays.slice(), quranDays: state.checkedQuranDays.slice(),
+    goals: state.goals.slice(), recurring: Object.assign({}, state.recurringStatus),
+    minimumOk: flags.minimumOk, minUnterricht: flags.minUnterricht, minGlobal: flags.minGlobal, minWeekly: flags.minWeekly,
+    percentage: pctInfo.percentage, statusKey: evalResult.key, status: evalResult.status,
+    reflection: flags.minimumOk ? null : state.reflection,
+  };
+  try {
+    await storage.set("checkin:" + state.me.username + ":" + state.weekId, JSON.stringify(record), true);
+    state.lastResult = record;
+    state.history = [record].concat(state.history.filter(function (h) { return h.weekId !== state.weekId; }));
+    state.stage = "result";
+  } catch (e) { state.error = "Check-in konnte nicht gespeichert werden."; }
+  state.loading = false;
+  render();
+}
+
+async function sendReaction(type) {
+  if (!state.me.partner) return;
+  state.loading = true; render();
+  try {
+    await storage.set("reaction:" + state.me.partner + ":" + state.weekId, JSON.stringify({ from: state.me.username, type: type, timestamp: Date.now() }), true);
+    state.reactionSentFlag = type;
+  } catch (e) {}
+  state.loading = false;
+  render();
+}
+
+function startNewCheckin() {
+  state.checkedActivities = []; state.checkedPrayers = []; state.checkedFastingDays = []; state.checkedQuranDays = []; state.goals = []; state.recurringStatus = {};
+  state.reflection = { why: "", hindernis: "", brauche: "", remindMe: false };
+  state.showReflection = false;
+  state.stage = "checkin";
+  render();
+}
+
+function toggleTheme() {
+  state.theme = state.theme === "dark" ? "light" : "dark";
+  render();
+}
+
+/* ---------- Event delegation ---------- */
+function handleAction(action, id) {
+  if (action === "toggle-theme") return toggleTheme();
+  if (action === "go-stage") { state.stage = id; return render(); }
+  if (action === "go-result") { state.stage = "result"; return render(); }
+  if (action === "go-partner") { state.stage = "partner"; return render(); }
+  if (action === "go-goals") { state.stage = "goals"; return render(); }
+  if (action === "go-history") { state.stage = "history"; return render(); }
+  if (action === "go-ranking") { state.stage = "ranking"; render(); return loadRanking(); }
+  if (action === "start-checkin") return startNewCheckin();
+  if (action === "gate-submit") return handleGateSubmit();
+  if (action === "login") return handleLogin();
+  if (action === "save-partner") return savePartner();
+  if (action === "toggle-activity") return toggleActivity(id);
+  if (action === "toggle-prayer") return togglePrayer(id);
+  if (action === "toggle-fasting-day") return toggleFastingDay(id);
+  if (action === "toggle-quran-day") return toggleQuranDay(id);
+  if (action === "set-recurring") return setRecurring(id);
+  if (action === "add-goal") return addGoal();
+  if (action === "toggle-goal") return toggleGoal(id);
+  if (action === "remove-goal") return removeGoal(id);
+  if (action === "toggle-remind") { state.reflection.remindMe = !state.reflection.remindMe; return render(); }
+  if (action === "submit-checkin") return submitCheckin();
+  if (action === "send-reaction") return sendReaction(id);
+}
+
+function attachHandlers() {
+  const app = document.getElementById("app");
+  app.onclick = function (e) {
+    const el = e.target.closest("[data-action]");
+    if (!el) return;
+    const action = el.getAttribute("data-action");
+    const id = el.getAttribute("data-id");
+    handleAction(action, id);
+  };
+  const inputs = app.querySelectorAll("[data-bind]");
+  inputs.forEach(function (el) {
+    el.addEventListener("input", function (e) {
+      setStateField(el.getAttribute("data-bind"), e.target.value);
+    });
+    const enterAction = el.getAttribute("data-enter-action");
+    if (enterAction) {
+      el.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { e.preventDefault(); handleAction(enterAction, el.getAttribute("data-id")); }
+      });
+    }
+    // restore focus/cursor if this element was focused before re-render is not needed here
+    // since input events don't trigger a full render for text fields.
+  });
+}
+
+/* ---------- Bootstrap ---------- */
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
